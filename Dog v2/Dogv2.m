@@ -14,9 +14,36 @@
 % vs : velocity screw(twist)（速度螺旋）
 % j1 : joint 1（关节1）
 % m1 : motion 1（驱动1）
-
+%%
 clc;
 clear;
+ %% input
+if ~exist('q','var')
+    %q = [-pi/2 pi/6 -pi/3 -pi/2 pi/6 -pi/3 -pi/2 -pi/6 pi/3 -pi/2 -pi/6 pi/3]';
+    q = [0,0,0]';
+end
+if(~exist('dq','var'))
+    dq = [0,0,0]';
+end
+if(~exist('ddq','var'))
+   % ddq =  [0.1,0.2,0.3]';
+   ddq =[  1 2 3]';
+end
+if(~exist('qf','var'))
+    % 输入力
+    qf = -[   -6.424222933799571,
+   2.953559269073115,
+   1.455799366112136
+]';
+
+end
+
+
+for i=1:1:1000
+    dq = dq+0.001*ddq;
+    q = q + 0.001*dq;
+
+
 %% 关节，连杆参数
 L1 = 0.1315;
 L2 = 0.306;
@@ -82,17 +109,6 @@ ee1_xyz = [body_long/2, -L2-L3, -body_width/2-L1];
 pm_ee1o = [eul2rotm(ee1_rpy,'ZYX'),ee1_xyz';
             0 0 0 1];
         
-%% 原来的
-% %求出起始位置各个杆件的惯量
-%  %body
-% I0o = [eye(3)*4.0, zeros(3,3);zeros(3,3), eye(3)];
-%  %leg1
-% pm = [eye(3), j11_xyz' + [0.0 0.00193 -0.02561]';0,0,0,1];
-% I1o = Tf(pm) * [eye(3)*3.7, zeros(3,3);zeros(3,3), eye(3)] * Tf(pm)';
-% pm = [eye(3), j12_xyz' + [0.2125 -0.024201 0.0]';0,0,0,1];
-% I2o = Tf(pm) * [eye(3)*8.393, zeros(3,3);zeros(3,3), eye(3)] * Tf(pm)';
-% pm = [eye(3), j13_xyz' + [0.110949 0.0 0.01634]';0,0,0,1];
-% I3o = Tf(pm) * [eye(3)*2.275, zeros(3,3);zeros(3,3), eye(3)] * Tf(pm)';
 
 %% 自己写的惯量
 
@@ -113,27 +129,6 @@ pm_cm13 = [eul2rotm([-3.0861407595, -1.5701687198, 1.5153344056],'ZYX'), [0.3264
 i13 = [3.0692247706E-02 3.0660003714E-02 1.0520934914E-03];
 I13o = Tf(pm_cm13) * [eye(3)*2.3190144933, zeros(3,3);zeros(3,3), diag(i13)] * Tf(pm_cm13)';
 
-
- %% input
-if ~exist('q','var')
-    %q = [-pi/2 pi/6 -pi/3 -pi/2 pi/6 -pi/3 -pi/2 -pi/6 pi/3 -pi/2 -pi/6 pi/3]';
-    q = [0,0,0]';
-end
-if(~exist('dq','var'))
-    dq = [0,0,0]';
-end
-if(~exist('ddq','var'))
-   % ddq =  [0.1,0.2,0.3]';
-   ddq =[  1 2 3]';
-end
-if(~exist('qf','var'))
-    % 输入力
-    qf = -[   -6.424222933799571,
-   2.953559269073115,
-   1.455799366112136
-]';
-
-end
 
 
 %% problem1 位置正解
@@ -245,7 +240,7 @@ b = [fp;ca];
 x = A\b;
 % x 包含了所有的杆件加速度和所有的约束力，现在列出六个驱动力
 actuation_force = x(end-2:end);
-
+force(:,i) = actuation_force; 
 %% problem8： 动力学正解
 
 % step 0 regenerate C
@@ -298,6 +293,8 @@ aj3 = x(19:24)-x(13:18) - Cv(v12)*v13;
 
 input_accleration = [norm(aj1(4:6));norm(aj2(4:6));norm(aj3(4:6))];
 
+
+end
 %% problem 9： 写成动力学通用形式
 % A = [
 % -I, C
@@ -311,3 +308,25 @@ input_accleration = [norm(aj1(4:6));norm(aj2(4:6));norm(aj3(4:6))];
 % actuation_force2 = M*ddq+h;
 % 
 % 
+
+
+
+%% 画图
+t = 0.001:0.001:1;
+subplot(221)
+plot(t,-force(1,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+title('Leg1 Joint1');
+
+subplot(222)
+plot(t,-force(2,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+axis([0 1 -11.5 -2.5])
+title('Leg1 Joint2');
+subplot(223)
+plot(t,-force(3,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+title('Leg1 Joint3');
