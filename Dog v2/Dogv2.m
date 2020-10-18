@@ -52,6 +52,12 @@ if(~exist('qf','var'))
 end
 
 
+for i=1:1:1000
+    dq = dq+0.001*ddq;
+    q = q + 0.001*dq;
+
+
+
 %% 关节，连杆参数
 L1 = 0.1315;
 L2 = 0.306;
@@ -299,9 +305,44 @@ P43 = P42*P(j43_vso*q(12));
 ee4 = P43*pm_ee4o;
 
 
-% ee2_x(i,1) = ee4(1,4);
-% ee2_y(i,1) = ee4(2,4);
-% ee2_z(i,1) = ee4(3,4);
+
+%% 足尖点
+
+pee(i,:) = [ee1(1,4),ee1(2,4),ee1(3,4),ee2(1,4),ee2(2,4),ee2(3,4),ee3(1,4),ee3(2,4),ee3(3,4),ee4(1,4),ee4(2,4),ee4(3,4),];
+% quiver3(0,0,0, 0.2, 0, 0, 'k','linewidth',0.1);
+% quiver3(0,0,0, 0, 0.2, 0, 'k','linewidth',0.1);
+% quiver3(0,0,0, 0, 0, 0.2, 'k','linewidth',0.1);
+% plot3(0, 0, 0 ,'o','MarkerFaceColor','k','MarkerSize',0.2);
+% hold on;
+% grid on;
+% 
+% x1 = ee1(1,4);
+% y1 = ee1(2,4);
+% z1 = ee1(3,4);
+% x2 = ee2(1,4);
+% y2 = ee2(2,4);
+% z2 = ee2(3,4);
+% x3 = ee3(1,4);
+% y3 = ee3(2,4);
+% z3 = ee3(3,4);
+% x4 = ee4(1,4);
+% y4 = ee4(2,4);
+% z4 = ee4(3,4);
+% 
+% 
+% 
+% plot3(z1,x1,y1,'o','MarkerFaceColor','r','MarkerSize',1);
+% plot3(z2,x2,y2,'*','MarkerFaceColor','b','MarkerSize',1);
+% plot3(z3,x3,y3,'o','MarkerFaceColor','r','MarkerSize',1);
+% plot3(z4,x4,y4,'*','MarkerFaceColor','b','MarkerSize',1);
+% hold on;
+% grid on;
+% drawnow;
+
+
+
+
+
 
 
 %/*-------------------------------------------------位置没错-------------------------------------------------------------*/
@@ -501,7 +542,7 @@ b = [fp;ca];
 x = A\b;
 % x 包含了所有的杆件加速度和所有的约束力，现在列出六个驱动力
 actuation_force = x(end-11:end);
-
+force(:,i) = actuation_force; 
 %% problem8： 动力学正解
 
 % step 0 regenerate C
@@ -610,7 +651,7 @@ aj43 = x(73:78)-x(67:72) - Cv(v12)*v13;
 
 input_accleration = [norm(aj11(4:6));norm(aj12(4:6));norm(aj13(4:6));norm(aj21(4:6));norm(aj22(4:6));norm(aj23(4:6));norm(aj31(4:6));norm(aj32(4:6));norm(aj33(4:6));norm(aj41(4:6));norm(aj42(4:6));norm(aj43(4:6))];
 
-
+end
 %% problem 9： 写成动力学通用形式
 % A = [
 % -I, C
@@ -623,4 +664,112 @@ input_accleration = [norm(aj11(4:6));norm(aj12(4:6));norm(aj13(4:6));norm(aj21(4
 % 
 % actuation_force2 = M*ddq+h;
 % 
+% 
+%% 画图动力学逆解
+t = 0.001:0.001:1;
+subplot(431)
+plot(t,-force(1,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+title('Leg1 Joint1');
+subplot(432)
+plot(t,-force(2,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+axis([0 1 -11.5 -2.5])
+title('Leg1 Joint2');
+subplot(433)
+plot(t,-force(3,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+title('Leg1 Joint3'); 
+
+%leg2
+subplot(434)
+plot(t,-force(4,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+title('Leg2 Joint1');
+subplot(435)
+plot(t,-force(5,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+axis([0 1 -11.5 -2.5])
+title('Leg2 Joint2');
+subplot(436)
+plot(t,-force(6,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+title('Leg2 Joint3'); 
+
+%leg3
+subplot(437)
+plot(t,-force(7,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+title('Leg3 Joint1');
+subplot(438)
+plot(t,-force(8,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+axis([0 1 -11.5 -2.5])
+title('Leg3 Joint2');
+subplot(439)
+plot(t,-force(9,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+title('Leg3 Joint3'); 
+%leg4
+subplot(4,3,10)
+plot(t,-force(10,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+title('Leg4 Joint1');
+subplot(4,3,11)
+plot(t,-force(11,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+axis([0 1 -11.5 -2.5])
+title('Leg4 Joint2');
+subplot(4,3,12)
+plot(t,-force(12,:));
+xlabel('t/s')
+ylabel('torque/N·M');
+title('Leg4 Joint3'); 
+
+
+
+%% 画图位置解
+% 
+% pee = pee';
+% t = 0.001:0.001:1;
+% 
+% %leg1
+% subplot(221)
+% plot(t,pee(1,:),'r',t,pee(2,:),'b',t,pee(3,:),'m');
+% xlabel('时间/s')
+% ylabel('位移/M');
+% title('Leg1 ee1');
+% legend('ee1-x','ee1-y','ee1-z');
+% %leg2
+% subplot(222)
+% plot(t,pee(4,:),'r',t,pee(5,:),'b',t,pee(6,:),'m');
+% xlabel('时间/s')
+% ylabel('位移/M');
+% title('Leg2 ee2');
+% legend('ee2-x','ee2-y','ee2-z');
+% %leg3
+% subplot(223)
+% plot(t,pee(7,:),'r',t,pee(8,:),'b',t,pee(9,:),'m');
+% xlabel('时间/s')
+% ylabel('位移/M');
+% title('Leg3 ee3');
+% legend('ee3-x','ee3-y','ee3-z');
+% %leg4
+% subplot(224)
+% plot(t,pee(10,:),'r',t,pee(11,:),'b',t,pee(12,:),'m');
+% xlabel('时间/s')
+% ylabel('位移/M');
+% title('Leg4 ee4');
+% legend('ee4-x','ee4-y','ee4-z');
 % 
