@@ -51,7 +51,7 @@ if(~exist('qf','var'))
 
 end
 
-
+fe1 = [1,1,1,1,1,1];
 for i=1:1:1000
     dq = dq+0.001*ddq;
     q = q + 0.001*dq;
@@ -351,6 +351,7 @@ pee(i,:) = [ee1(1,4),ee1(2,4),ee1(3,4),ee2(1,4),ee2(2,4),ee2(3,4),ee3(1,4),ee3(2
 % J2 = [Tv(P0)*j21_vso, Tv(P21)*j22_vso, Tv(P22)*j23_vso];
 % J3 = [Tv(P0)*j31_vso, Tv(P31)*j32_vso, Tv(P32)*j33_vso];
 % J4 = [Tv(P0)*j41_vso, Tv(P41)*j42_vso, Tv(P42)*j43_vso];
+
 %% problem3 计算所有杆件的速度
 % step1
 %leg1
@@ -515,7 +516,7 @@ f0=-I0*g + Cf(v0)*I0*v0;
 %leg1
 f11=-I11*g + Cf(v11)*I11*v11;
 f12=-I12*g + Cf(v12)*I12*v12;
-f13=-I13*g + Cf(v13)*I13*v13;
+f13=-I13*g + Cf(v13)*I13*v13 - Tf(P13)*fe1';
 %leg2
 f21=-I21*g + Cf(v21)*I21*v21;
 f22=-I22*g + Cf(v22)*I22*v22;
@@ -545,111 +546,111 @@ actuation_force = x(end-11:end);
 force(:,i) = actuation_force; 
 %% problem8： 动力学正解
 
-% step 0 regenerate C
-C2=[
-  eye(6,6),   -j11_cm,zeros(6,5),zeros(6,5),   -j21_cm,zeros(6,5),zeros(6,5),   -j31_cm,zeros(6,5),zeros(6,5),   -j41_cm,zeros(6,5),zeros(6,5),
-zeros(6,6),    j11_cm,   -j12_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
-zeros(6,6),zeros(6,5),    j12_cm,   -j13_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
-zeros(6,6),zeros(6,5),zeros(6,5),    j13_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
-zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),    j21_cm,   -j22_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
-zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j22_cm,   -j23_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
-zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j23_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
-zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j31_cm,   -j32_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
-zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j32_cm,   -j33_cm,zeros(6,5),zeros(6,5),zeros(6,5),
-zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j33_cm,zeros(6,5),zeros(6,5),zeros(6,5),
-zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j41_cm,   -j42_cm,zeros(6,5),
-zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j42_cm,   -j43_cm,
-zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j43_cm,];
-
-dC2=[
-zeros(6,6),-Cf(v0)*j11_cm,     zeros(6,5),     zeros(6,5),-Cf(v0)*j21_cm,     zeros(6,5),     zeros(6,5),-Cf(v0)*j31_cm,     zeros(6,5),     zeros(6,5),-Cf(v0)*j41_cm,     zeros(6,5),     zeros(6,5),
-zeros(6,6), Cf(v0)*j11_cm,-Cf(v11)*j12_cm,     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),
-zeros(6,6),    zeros(6,5), Cf(v11)*j12_cm,-Cf(v12)*j13_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),
-zeros(6,6),    zeros(6,5),     zeros(6,5), Cf(v12)*j13_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),
-zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5), Cf(v0)*j21_cm,-Cf(v21)*j22_cm,     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),
-zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5), Cf(v21)*j22_cm,-Cf(v22)*j23_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),
-zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5)  Cf(v22)*j23_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5), 
-zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5), Cf(v0)*j31_cm,-Cf(v31)*j32_cm,     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5), 
-zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5), Cf(v31)*j32_cm,-Cf(v32)*j33_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5), 
-zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5), Cf(v32)*j33_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5), 
-zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5), Cf(v0)*j41_cm,-Cf(v41)*j42_cm,     zeros(6,5), 
-zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5), Cf(v41)*j42_cm,-Cf(v42)*j43_cm, 
-zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5), Cf(v42)*j43_cm];
-
-
-% step 1
-I0=Tf(P0) * I0o * Tf(P0)';
-%leg1
-I11=Tf(P11) * I11o * Tf(P11)';
-I12=Tf(P12) * I12o * Tf(P12)';
-I13=Tf(P13) * I13o * Tf(P13)';
-%leg2
-I21=Tf(P21) * I21o * Tf(P21)';
-I22=Tf(P22) * I22o * Tf(P22)';
-I23=Tf(P23) * I23o * Tf(P23)';
-%leg3
-I31=Tf(P31) * I31o * Tf(P31)';
-I32=Tf(P32) * I32o * Tf(P32)';
-I33=Tf(P33) * I33o * Tf(P33)';
-%leg4
-I41=Tf(P41) * I41o * Tf(P41)';
-I42=Tf(P42) * I42o * Tf(P42)';
-I43=Tf(P43) * I43o * Tf(P43)';
-
-I=blkdiag(I0,I11,I12,I13,I21,I22,I23,I31,I32,I33,I41,I42,I43);
-
-% step 2
-g=[0,-9.8,0,0,0,0]';
-
-
-f0=-I0*g + Cf(v0)*I0*v0-m11_cm*qf(1)-m21_cm*qf(4)-m31_cm*qf(7)-m41_cm*qf(10);
-%leg1
-f11=-I11*g + Cf(v11)*I11*v11+m11_cm*qf(1)-m12_cm*qf(2);
-f12=-I12*g + Cf(v12)*I12*v12+m12_cm*qf(2)-m13_cm*qf(3);
-f13=-I13*g + Cf(v13)*I13*v13+m13_cm*qf(3);
-%leg2
-f21=-I21*g + Cf(v21)*I21*v21+m21_cm*qf(4)-m22_cm*qf(5);
-f22=-I22*g + Cf(v22)*I22*v22+m22_cm*qf(5)-m23_cm*qf(6);
-f23=-I23*g + Cf(v23)*I23*v23+m23_cm*qf(6);
-%leg3
-f31=-I31*g + Cf(v31)*I31*v31+m31_cm*qf(7)-m32_cm*qf(8);
-f32=-I32*g + Cf(v32)*I32*v32+m32_cm*qf(8)-m33_cm*qf(9);
-f33=-I33*g + Cf(v33)*I33*v33+m33_cm*qf(9);
-%leg4
-f41=-I41*g + Cf(v41)*I41*v41+m41_cm*qf(10)-m42_cm*qf(11);
-f42=-I42*g + Cf(v42)*I42*v42+m42_cm*qf(11)-m43_cm*qf(12);
-f43=-I43*g + Cf(v43)*I43*v43+m43_cm*qf(12);
-
-fp2=[f0;f11;f12;f13;f21;f22;f23;f31;f32;f33;f41;f42;f43];
-
-
-% step 3
-dcv2 = zeros(66,1);
-ca2 = -dC2'*v+dcv2;
-
-% step 4
-A = [-I, C2; C2' zeros(66,66)];
-b = [fp2;ca2];
-
-x=A\b;
-%leg1
-aj11 = x(7:12)-x(1:6) - Cv(v0)*v11;
-aj12 = x(13:18)-x(7:12) - Cv(v11)*v12;
-aj13 = x(19:24)-x(13:18) - Cv(v12)*v13;
-%leg2
-aj21 = x(25:30)-x(1:6) - Cv(v0)*v21;
-aj22 = x(31:36)-x(25:30) - Cv(v21)*v22;
-aj23 = x(37:42)-x(31:36) - Cv(v22)*v23;
-%leg3
-aj31 = x(43:48)-x(1:6) - Cv(v0)*v11;
-aj32 = x(49:54)-x(43:48) - Cv(v11)*v12;
-aj33 = x(55:60)-x(49:54) - Cv(v12)*v13;
-%leg4
-aj41 = x(61:66)-x(1:6) - Cv(v0)*v11;
-aj42 = x(67:72)-x(61:66) - Cv(v11)*v12;
-aj43 = x(73:78)-x(67:72) - Cv(v12)*v13;
-
-input_accleration = [norm(aj11(4:6));norm(aj12(4:6));norm(aj13(4:6));norm(aj21(4:6));norm(aj22(4:6));norm(aj23(4:6));norm(aj31(4:6));norm(aj32(4:6));norm(aj33(4:6));norm(aj41(4:6));norm(aj42(4:6));norm(aj43(4:6))];
+% % step 0 regenerate C
+% C2=[
+%   eye(6,6),   -j11_cm,zeros(6,5),zeros(6,5),   -j21_cm,zeros(6,5),zeros(6,5),   -j31_cm,zeros(6,5),zeros(6,5),   -j41_cm,zeros(6,5),zeros(6,5),
+% zeros(6,6),    j11_cm,   -j12_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
+% zeros(6,6),zeros(6,5),    j12_cm,   -j13_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
+% zeros(6,6),zeros(6,5),zeros(6,5),    j13_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
+% zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),    j21_cm,   -j22_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
+% zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j22_cm,   -j23_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
+% zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j23_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
+% zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j31_cm,   -j32_cm,zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),
+% zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j32_cm,   -j33_cm,zeros(6,5),zeros(6,5),zeros(6,5),
+% zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j33_cm,zeros(6,5),zeros(6,5),zeros(6,5),
+% zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j41_cm,   -j42_cm,zeros(6,5),
+% zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j42_cm,   -j43_cm,
+% zeros(6,6),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),zeros(6,5),    j43_cm,];
+% 
+% dC2=[
+% zeros(6,6),-Cf(v0)*j11_cm,     zeros(6,5),     zeros(6,5),-Cf(v0)*j21_cm,     zeros(6,5),     zeros(6,5),-Cf(v0)*j31_cm,     zeros(6,5),     zeros(6,5),-Cf(v0)*j41_cm,     zeros(6,5),     zeros(6,5),
+% zeros(6,6), Cf(v0)*j11_cm,-Cf(v11)*j12_cm,     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),
+% zeros(6,6),    zeros(6,5), Cf(v11)*j12_cm,-Cf(v12)*j13_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),
+% zeros(6,6),    zeros(6,5),     zeros(6,5), Cf(v12)*j13_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),
+% zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5), Cf(v0)*j21_cm,-Cf(v21)*j22_cm,     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),
+% zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5), Cf(v21)*j22_cm,-Cf(v22)*j23_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),
+% zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5)  Cf(v22)*j23_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5), 
+% zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5), Cf(v0)*j31_cm,-Cf(v31)*j32_cm,     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5), 
+% zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5), Cf(v31)*j32_cm,-Cf(v32)*j33_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5), 
+% zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5), Cf(v32)*j33_cm,    zeros(6,5),     zeros(6,5),     zeros(6,5), 
+% zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5), Cf(v0)*j41_cm,-Cf(v41)*j42_cm,     zeros(6,5), 
+% zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5), Cf(v41)*j42_cm,-Cf(v42)*j43_cm, 
+% zeros(6,6),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5),     zeros(6,5),    zeros(6,5),     zeros(6,5), Cf(v42)*j43_cm];
+% 
+% 
+% % step 1
+% I0=Tf(P0) * I0o * Tf(P0)';
+% %leg1
+% I11=Tf(P11) * I11o * Tf(P11)';
+% I12=Tf(P12) * I12o * Tf(P12)';
+% I13=Tf(P13) * I13o * Tf(P13)';
+% %leg2
+% I21=Tf(P21) * I21o * Tf(P21)';
+% I22=Tf(P22) * I22o * Tf(P22)';
+% I23=Tf(P23) * I23o * Tf(P23)';
+% %leg3
+% I31=Tf(P31) * I31o * Tf(P31)';
+% I32=Tf(P32) * I32o * Tf(P32)';
+% I33=Tf(P33) * I33o * Tf(P33)';
+% %leg4
+% I41=Tf(P41) * I41o * Tf(P41)';
+% I42=Tf(P42) * I42o * Tf(P42)';
+% I43=Tf(P43) * I43o * Tf(P43)';
+% 
+% I=blkdiag(I0,I11,I12,I13,I21,I22,I23,I31,I32,I33,I41,I42,I43);
+% 
+% % step 2
+% g=[0,-9.8,0,0,0,0]';
+% 
+% 
+% f0=-I0*g + Cf(v0)*I0*v0-m11_cm*qf(1)-m21_cm*qf(4)-m31_cm*qf(7)-m41_cm*qf(10);
+% %leg1
+% f11=-I11*g + Cf(v11)*I11*v11+m11_cm*qf(1)-m12_cm*qf(2);
+% f12=-I12*g + Cf(v12)*I12*v12+m12_cm*qf(2)-m13_cm*qf(3);
+% f13=-I13*g + Cf(v13)*I13*v13+m13_cm*qf(3);
+% %leg2
+% f21=-I21*g + Cf(v21)*I21*v21+m21_cm*qf(4)-m22_cm*qf(5);
+% f22=-I22*g + Cf(v22)*I22*v22+m22_cm*qf(5)-m23_cm*qf(6);
+% f23=-I23*g + Cf(v23)*I23*v23+m23_cm*qf(6);
+% %leg3
+% f31=-I31*g + Cf(v31)*I31*v31+m31_cm*qf(7)-m32_cm*qf(8);
+% f32=-I32*g + Cf(v32)*I32*v32+m32_cm*qf(8)-m33_cm*qf(9);
+% f33=-I33*g + Cf(v33)*I33*v33+m33_cm*qf(9);
+% %leg4
+% f41=-I41*g + Cf(v41)*I41*v41+m41_cm*qf(10)-m42_cm*qf(11);
+% f42=-I42*g + Cf(v42)*I42*v42+m42_cm*qf(11)-m43_cm*qf(12);
+% f43=-I43*g + Cf(v43)*I43*v43+m43_cm*qf(12);
+% 
+% fp2=[f0;f11;f12;f13;f21;f22;f23;f31;f32;f33;f41;f42;f43];
+% 
+% 
+% % step 3
+% dcv2 = zeros(66,1);
+% ca2 = -dC2'*v+dcv2;
+% 
+% % step 4
+% A = [-I, C2; C2' zeros(66,66)];
+% b = [fp2;ca2];
+% 
+% x=A\b;
+% %leg1
+% aj11 = x(7:12)-x(1:6) - Cv(v0)*v11;
+% aj12 = x(13:18)-x(7:12) - Cv(v11)*v12;
+% aj13 = x(19:24)-x(13:18) - Cv(v12)*v13;
+% %leg2
+% aj21 = x(25:30)-x(1:6) - Cv(v0)*v21;
+% aj22 = x(31:36)-x(25:30) - Cv(v21)*v22;
+% aj23 = x(37:42)-x(31:36) - Cv(v22)*v23;
+% %leg3
+% aj31 = x(43:48)-x(1:6) - Cv(v0)*v11;
+% aj32 = x(49:54)-x(43:48) - Cv(v11)*v12;
+% aj33 = x(55:60)-x(49:54) - Cv(v12)*v13;
+% %leg4
+% aj41 = x(61:66)-x(1:6) - Cv(v0)*v11;
+% aj42 = x(67:72)-x(61:66) - Cv(v11)*v12;
+% aj43 = x(73:78)-x(67:72) - Cv(v12)*v13;
+% 
+% input_accleration = [norm(aj11(4:6));norm(aj12(4:6));norm(aj13(4:6));norm(aj21(4:6));norm(aj22(4:6));norm(aj23(4:6));norm(aj31(4:6));norm(aj32(4:6));norm(aj33(4:6));norm(aj41(4:6));norm(aj42(4:6));norm(aj43(4:6))];
 
 end
 %% problem 9： 写成动力学通用形式
